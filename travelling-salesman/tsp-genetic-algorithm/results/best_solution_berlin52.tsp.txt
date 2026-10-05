@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR berlin52.tsp ===
+Generated: 2025-05-25 14:11:26
+Number of vertices: 52
+===============================
+
+SOLUTION PATH:
+40 -> 25 -> 48 -> 38 -> 15 -> 46 -> 44 -> 18 -> 19 -> 8 -> 10 -> 9 -> 33 -> 43 -> 39 -> 22 -> 3 -> 21 -> 30 -> 31 -> 17 -> 7 -> 42 -> 2 -> 16 -> 29 -> 23 -> 45 -> 41 -> 32 -> 49 -> 1 -> 20 -> 34 -> 35 -> 37 -> 36 -> 50 -> 24 -> 5 -> 6 -> 4 -> 12 -> 47 -> 13 -> 14 -> 26 -> 28 -> 51 -> 52 -> 11 -> 27 -> 40 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 13207.00
+Optimal Distance: 7542.00
+Gap from Optimal: 75.11%
+Fitness Value: 0.748895

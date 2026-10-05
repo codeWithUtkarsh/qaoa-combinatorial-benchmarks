@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR fri26.tsp ===
+Generated: 2025-05-25 14:15:02
+Number of vertices: 26
+===============================
+
+SOLUTION PATH:
+24 -> 23 -> 25 -> 22 -> 21 -> 12 -> 11 -> 13 -> 16 -> 20 -> 19 -> 17 -> 26 -> 18 -> 9 -> 8 -> 7 -> 3 -> 10 -> 14 -> 15 -> 6 -> 5 -> 4 -> 2 -> 1 -> 24 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 1288.00
+Optimal Distance: 937.00
+Gap from Optimal: 37.46%
+Fitness Value: 9.372071

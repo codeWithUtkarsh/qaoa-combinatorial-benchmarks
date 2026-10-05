@@ -1,0 +1,11 @@
+PyYAML
+numpy
+qiskit-optimization
+psutil
+matplotlib
+qiskit==2.0.3
+py-cpuinfo
+pandas
+qiskit-aer
+qiskit-algorithms
+qiskit-ibm-runtime

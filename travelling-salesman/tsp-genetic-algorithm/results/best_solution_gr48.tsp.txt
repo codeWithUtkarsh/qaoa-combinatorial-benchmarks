@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR gr48.tsp ===
+Generated: 2025-05-25 14:16:33
+Number of vertices: 48
+===============================
+
+SOLUTION PATH:
+44 -> 41 -> 34 -> 28 -> 15 -> 8 -> 22 -> 33 -> 12 -> 5 -> 27 -> 17 -> 32 -> 21 -> 7 -> 14 -> 9 -> 47 -> 39 -> 45 -> 2 -> 24 -> 40 -> 37 -> 38 -> 35 -> 20 -> 30 -> 19 -> 4 -> 43 -> 46 -> 1 -> 29 -> 11 -> 36 -> 13 -> 16 -> 48 -> 26 -> 31 -> 10 -> 6 -> 42 -> 25 -> 23 -> 3 -> 18 -> 44 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 9962.00
+Optimal Distance: 5046.00
+Gap from Optimal: 97.42%
+Fitness Value: 0.996810

@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR gr24.tsp ===
+Generated: 2025-05-25 14:11:28
+Number of vertices: 24
+===============================
+
+SOLUTION PATH:
+8 -> 7 -> 5 -> 10 -> 17 -> 19 -> 22 -> 18 -> 20 -> 15 -> 2 -> 14 -> 13 -> 9 -> 23 -> 4 -> 12 -> 11 -> 3 -> 21 -> 24 -> 6 -> 16 -> 1 -> 8 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 1589.00
+Optimal Distance: 1272.00
+Gap from Optimal: 24.92%
+Fitness Value: 6.877579

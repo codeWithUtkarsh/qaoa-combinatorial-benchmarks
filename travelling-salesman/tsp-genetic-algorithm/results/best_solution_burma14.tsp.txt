@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR burma14.tsp ===
+Generated: 2025-05-25 14:17:07
+Number of vertices: 14
+===============================
+
+SOLUTION PATH:
+10 -> 9 -> 11 -> 8 -> 13 -> 7 -> 6 -> 12 -> 5 -> 4 -> 3 -> 14 -> 2 -> 1 -> 10 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 3367.00
+Optimal Distance: 3367.00
+Gap from Optimal: 0.00%
+Fitness Value: 3.270111

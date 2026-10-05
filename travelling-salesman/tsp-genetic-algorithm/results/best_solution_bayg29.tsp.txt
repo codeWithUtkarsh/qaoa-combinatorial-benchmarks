@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR bayg29.tsp ===
+Generated: 2025-05-25 14:17:52
+Number of vertices: 29
+===============================
+
+SOLUTION PATH:
+23 -> 27 -> 16 -> 19 -> 25 -> 7 -> 11 -> 22 -> 17 -> 18 -> 14 -> 15 -> 4 -> 10 -> 20 -> 13 -> 24 -> 9 -> 12 -> 6 -> 5 -> 2 -> 3 -> 29 -> 26 -> 21 -> 1 -> 28 -> 8 -> 23 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 1904.00
+Optimal Distance: 1610.00
+Gap from Optimal: 18.26%
+Fitness Value: 5.324814

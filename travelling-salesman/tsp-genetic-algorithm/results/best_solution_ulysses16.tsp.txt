@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR ulysses16.tsp ===
+Generated: 2025-05-25 14:11:27
+Number of vertices: 16
+===============================
+
+SOLUTION PATH:
+11 -> 9 -> 10 -> 12 -> 7 -> 6 -> 5 -> 15 -> 14 -> 13 -> 16 -> 1 -> 8 -> 4 -> 2 -> 3 -> 11 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 7723.00
+Optimal Distance: 6859.00
+Gap from Optimal: 12.60%
+Fitness Value: 1.819505

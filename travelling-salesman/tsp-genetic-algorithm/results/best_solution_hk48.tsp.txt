@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR hk48.tsp ===
+Generated: 2025-05-25 14:13:44
+Number of vertices: 48
+===============================
+
+SOLUTION PATH:
+5 -> 23 -> 19 -> 37 -> 16 -> 1 -> 20 -> 42 -> 2 -> 17 -> 11 -> 40 -> 14 -> 36 -> 38 -> 25 -> 7 -> 6 -> 8 -> 18 -> 47 -> 34 -> 9 -> 26 -> 29 -> 21 -> 43 -> 15 -> 48 -> 10 -> 33 -> 3 -> 30 -> 35 -> 24 -> 22 -> 31 -> 28 -> 32 -> 13 -> 12 -> 41 -> 4 -> 45 -> 39 -> 46 -> 44 -> 27 -> 5 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 26149.00
+Optimal Distance: 11461.00
+Gap from Optimal: 128.16%
+Fitness Value: 0.399824

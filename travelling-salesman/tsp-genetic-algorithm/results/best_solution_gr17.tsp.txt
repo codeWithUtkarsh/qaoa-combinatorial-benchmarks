@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR gr17.tsp ===
+Generated: 2025-05-25 14:14:43
+Number of vertices: 17
+===============================
+
+SOLUTION PATH:
+2 -> 5 -> 11 -> 10 -> 15 -> 3 -> 14 -> 9 -> 12 -> 16 -> 4 -> 13 -> 8 -> 6 -> 17 -> 7 -> 1 -> 2 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 2530.00
+Optimal Distance: 2085.00
+Gap from Optimal: 21.34%
+Fitness Value: 5.274261

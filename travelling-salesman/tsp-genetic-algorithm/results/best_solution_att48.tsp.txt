@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR att48.tsp ===
+Generated: 2025-05-25 14:17:02
+Number of vertices: 48
+===============================
+
+SOLUTION PATH:
+9 -> 23 -> 40 -> 12 -> 34 -> 25 -> 1 -> 16 -> 22 -> 29 -> 24 -> 26 -> 2 -> 4 -> 45 -> 10 -> 35 -> 48 -> 3 -> 41 -> 39 -> 13 -> 14 -> 5 -> 42 -> 32 -> 47 -> 11 -> 38 -> 31 -> 18 -> 19 -> 17 -> 37 -> 6 -> 43 -> 15 -> 30 -> 36 -> 28 -> 7 -> 44 -> 27 -> 46 -> 20 -> 21 -> 8 -> 33 -> 9 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 22721.00
+Optimal Distance: 10628.00
+Gap from Optimal: 113.78%
+Fitness Value: 0.437828

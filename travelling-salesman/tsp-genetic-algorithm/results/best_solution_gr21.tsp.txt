@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR gr21.tsp ===
+Generated: 2025-05-25 14:11:27
+Number of vertices: 21
+===============================
+
+SOLUTION PATH:
+3 -> 9 -> 5 -> 16 -> 2 -> 15 -> 21 -> 14 -> 13 -> 18 -> 10 -> 20 -> 11 -> 19 -> 17 -> 4 -> 1 -> 12 -> 7 -> 8 -> 6 -> 3 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 3397.00
+Optimal Distance: 2707.00
+Gap from Optimal: 25.49%
+Fitness Value: 3.271181

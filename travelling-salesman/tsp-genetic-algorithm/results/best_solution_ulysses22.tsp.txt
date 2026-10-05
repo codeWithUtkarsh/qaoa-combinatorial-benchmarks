@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR ulysses22.tsp ===
+Generated: 2025-05-25 14:15:02
+Number of vertices: 22
+===============================
+
+SOLUTION PATH:
+11 -> 9 -> 19 -> 20 -> 10 -> 21 -> 14 -> 13 -> 6 -> 15 -> 5 -> 7 -> 12 -> 1 -> 8 -> 16 -> 22 -> 3 -> 2 -> 17 -> 18 -> 4 -> 11 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 8561.00
+Optimal Distance: 7013.00
+Gap from Optimal: 22.07%
+Fitness Value: 1.578283

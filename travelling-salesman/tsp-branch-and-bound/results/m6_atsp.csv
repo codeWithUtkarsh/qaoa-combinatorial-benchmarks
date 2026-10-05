@@ -1,0 +1,11 @@
+Sample_Name, Sample_Execution_Time_ns, path, path weight, is correct
+m6.atsp, 66792, 4->3->2->1->5->0, 80, true
+m6.atsp, 45458, 4->3->2->1->5->0, 80, true
+m6.atsp, 43958, 4->3->2->1->5->0, 80, true
+m6.atsp, 47625, 4->3->2->1->5->0, 80, true
+m6.atsp, 43458, 4->3->2->1->5->0, 80, true
+m6.atsp, 47167, 4->3->2->1->5->0, 80, true
+m6.atsp, 46958, 4->3->2->1->5->0, 80, true
+m6.atsp, 46584, 4->3->2->1->5->0, 80, true
+m6.atsp, 50541, 4->3->2->1->5->0, 80, true
+m6.atsp, 43042, 4->3->2->1->5->0, 80, true

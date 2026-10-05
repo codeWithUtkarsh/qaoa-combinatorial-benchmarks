@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR bays29.tsp ===
+Generated: 2025-05-25 14:11:25
+Number of vertices: 29
+===============================
+
+SOLUTION PATH:
+12 -> 9 -> 26 -> 3 -> 29 -> 2 -> 13 -> 16 -> 19 -> 7 -> 25 -> 15 -> 22 -> 18 -> 17 -> 14 -> 11 -> 4 -> 20 -> 10 -> 8 -> 24 -> 23 -> 27 -> 6 -> 5 -> 21 -> 28 -> 1 -> 12 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 2722.00
+Optimal Distance: 2020.00
+Gap from Optimal: 34.75%
+Fitness Value: 3.863988

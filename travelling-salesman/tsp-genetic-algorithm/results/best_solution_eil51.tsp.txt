@@ -1,0 +1,13 @@
+=== BEST SOLUTION FOR eil51.tsp ===
+Generated: 2025-05-25 14:11:27
+Number of vertices: 51
+===============================
+
+SOLUTION PATH:
+50 -> 21 -> 9 -> 30 -> 39 -> 10 -> 38 -> 11 -> 29 -> 35 -> 36 -> 15 -> 45 -> 44 -> 33 -> 37 -> 19 -> 4 -> 42 -> 41 -> 13 -> 12 -> 47 -> 5 -> 18 -> 25 -> 14 -> 40 -> 17 -> 51 -> 46 -> 49 -> 34 -> 16 -> 32 -> 27 -> 6 -> 23 -> 24 -> 48 -> 43 -> 7 -> 22 -> 1 -> 26 -> 2 -> 20 -> 3 -> 8 -> 31 -> 28 -> 50 (return to start)
+
+SOLUTION QUALITY:
+Found Distance: 787.00
+Optimal Distance: 426.00
+Gap from Optimal: 84.74%
+Fitness Value: 12.987013
