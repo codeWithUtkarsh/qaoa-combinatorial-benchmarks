@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import math
+import os
 import time
 import yaml
 import logging
@@ -24,28 +24,36 @@ config_file = "./config.yaml"
 with open(config_file, "r") as file:
     config = yaml.safe_load(file)
 
-token = config['token']
-instance = config['instance']
+backend_name = config.get('backend_name', 'ibm_brisbane')
+noisy_simulator = config.get('noisy_simulator', False)
+optimizer = config.get('optimizer', 'COBYLA')
+seed = config.get('seed')
+simulator_method = config.get('simulator_method', 'automatic')
+OPTIMIZATION_LEVEL = 3
 
-def get_backend(num_qubits, use_simulator):
-    QiskitRuntimeService.delete_account()
-    QiskitRuntimeService.save_account(token=token,instance=instance,overwrite=True)
-    service = QiskitRuntimeService()
+
+def get_runtime_service():
+    """Credentials come from QISKIT_IBM_TOKEN / QISKIT_IBM_INSTANCE, else the saved account."""
+    token = os.environ.get('QISKIT_IBM_TOKEN')
+    instance = os.environ.get('QISKIT_IBM_INSTANCE')
+    if token:
+        return QiskitRuntimeService(token=token, instance=instance)
+    return QiskitRuntimeService()
+
+
+def get_backend(use_simulator):
+    if use_simulator and not noisy_simulator:
+        logger.info(f"Using ideal (noiseless) Aer Simulator, method={simulator_method}")
+        return AerSimulator(method=simulator_method, seed_simulator=seed)
+
+    service = get_runtime_service()
+    real_backend = service.backend(backend_name)
     if use_simulator:
-        logger.info("Using Simulator")
-        real_backend = service.backend('ibm_brisbane')
-        # real_backend = service.least_busy(
-        #     operational=True, simulator=False, min_num_qubits=num_qubits * num_qubits
-        # )
-        simulator = AerSimulator.from_backend(real_backend)
-        # simulator = AerSimulator()
-        return simulator
-    else:
-        logger.info("Using Real Hardware")
-        return service.backend('ibm_brisbane')
-        # return service.least_busy(
-        #     operational=True, simulator=False, min_num_qubits=num_qubits * num_qubits,
-        # )
+        logger.info(f"Using Aer Simulator with noise model of {backend_name}")
+        return AerSimulator.from_backend(real_backend, method=simulator_method, seed_simulator=seed)
+
+    logger.info(f"Using Real Hardware: {backend_name}")
+    return real_backend
 
 def run_qaoa(
         num_cities,
@@ -66,10 +74,10 @@ def run_qaoa(
 
     # Create QAOA circuit
     _quantum_circuit = QAOAAnsatz(cost_operator=cost_hamiltonian, reps=1)
-    _backend = get_backend(num_cities, use_simulator)
+    _backend = get_backend(use_simulator)
 
     preset_manager = generate_preset_pass_manager(
-        backend=_backend, optimization_level=3, seed_transpiler=42
+        backend=_backend, optimization_level=OPTIMIZATION_LEVEL, seed_transpiler=42
     )
     isa_circuit = preset_manager.run(_quantum_circuit)
     isa_circuit.global_phase = 0.0
@@ -93,7 +101,7 @@ def run_qaoa(
 
     # Initialize parameters
     num_params = _quantum_circuit.num_parameters
-    initial_params = np.random.uniform(-np.pi / 8, np.pi / 8, num_params)
+    initial_params = np.random.default_rng(seed).uniform(-np.pi / 8, np.pi / 8, num_params)
 
     # Optimize
     logger.debug("Starting optimization...")
@@ -103,13 +111,14 @@ def run_qaoa(
         cost_func_estimator,
         initial_params,
         args=(isa_circuit, cost_hamiltonian, estimator),
-        method='COBYLA',
+        method=optimizer,
         options={'maxiter': max_iter, 'disp': True}
     )
     quantum_result_attributes['iterations'] = result['nfev']
     quantum_result_attributes['optimization_time(sec)'] = time.time() - start_time
-    quantum_result_attributes['p_level'] = 1
-    quantum_result_attributes['optimization_level'] = 3
+    quantum_result_attributes['p_level'] = p_level
+    quantum_result_attributes['optimization_level'] = OPTIMIZATION_LEVEL
+    quantum_result_attributes['optimizer'] = optimizer
 
     # Sample final circuit
     sampler = Sampler(_backend)
@@ -161,14 +170,6 @@ def process(
         shots = 1000,
         use_simulator = True):
 
-    # num_cities = 4
-    # penalty_weight = 0.01
-    # p_level = 5
-    # max_iter = 100
-    # shots = 2000
-    # use_simulator = True
-
-    # p_level = int(math.ceil(math.log2(num_cities*num_cities)))
     logger.info(f"Using p_level:: {p_level}")
 
     do_classical = True if num_cities < 6 else False

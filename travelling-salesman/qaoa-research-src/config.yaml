@@ -1,52 +1,23 @@
 output_dir: './saved_result'
 
-optimizers: ['COBYLA']
-num_cities_list: [3]
-penalty_weight: 0.01
-use_simulator: false
-shots: 2000
+# Problem
+num_cities_list: [3]     # one run per entry; n cities -> n^2 qubits
+penalty_weight: 0.01     # weight of the distance terms in the Hamiltonian
+
+# QAOA
+p_level: 1               # QAOA repetitions (reps)
+optimizer: 'COBYLA'
 max_iter: 100
-p_level: 1
+shots: 2000
+seed: null               # integer for reproducible initial parameters, null for random
 
+# Backend
+use_simulator: true      # false -> run on real IBM Quantum hardware
+noisy_simulator: false   # simulator only: true -> copy the noise model of `backend_name` (needs IBM account)
+simulator_method: 'automatic'  # Aer method; 'matrix_product_state' for > ~28 qubits (6+ cities)
+backend_name: 'ibm_brisbane'
 
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/0d5f2945f5c44fd6a69d8a9dd034808c:3d94a602-73b8-4229-9e5a-fe5586760e4a::'
-#token: '0oZvOcWcHiCTQyyGO1fs-1AwZREj7PFl3K2CoYl7fkTX'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/9c3c5ab950fa48ba9c0f7cd67f297d91:39034f72-c872-4fff-976c-441456e73e25::'
-#token: '9ZBhyj2GSCXr60b6PoC7Xh-my7GZdpQV1O5azy0Yepdt'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/fc8adc22c171482bacd58d742eaacb90:7bdf170b-356b-47f4-bad1-2da87d34fbcb::'
-#token: 'aeGNq9_lHf84LaqENb2mf4eFVwoOKTRZiZKhZWW6wG-8'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/2604a83addd34d8c8309eaf02ec3b69a:85b2d968-7c85-4e50-b857-c0c93f23465f::'
-#token: 'T74tnAZ9Rgxl3Lrxe3Bw3ug4_oIgPXQybzgRAkYfFml0'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/9bd6d770238543bbb3d13daaa19e32f9:54bc49b4-eefa-4009-81ed-236c3c14894d::'
-#token: 'Qq_aNuBdOf7L3AzJC-YfG1jjRxevweJ7VGEPQvGa5UDo'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/5d239b05414e420c902ce2977371b119:51cb72c6-c7ce-4297-82a0-93757f85f85d::'
-#token: 'gagnzrisr1FByROQdhdkDtNI3cc5xsSwXfReFvxd741h'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/788d9a0da8fc45e79335d18f660154eb:e4f619f0-ac31-48fb-a304-e35677921ae5::'
-#token: 'uDIKi7SDZSFRimsotFayN0gG5ScAfFU1BwGNxjUJ9vdJ'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/d992954d873644ac89ac201e3d32620f:d7a144e5-5227-4a81-96c3-ca04a51880b0::'
-#token: 'zlympVZQsH8ymAEfZkrF-rYpkDqVdtWASqr6CycP8kph'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/6d61ef9632a74c70a11b42a36d07f5f0:85af4254-2901-42f0-867a-4b72b0c1c1f6::'
-#token: '6Vk0Y-GrN8rKLZZTZr-Rxsd7LWNaPe_kN6HJWJ9IzUQF'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/f6b030b978e94c728fefc21954b3ed51:179ece23-e65a-4bda-b78b-0133d04f14dd::'
-#token: 'YFVgUQ0a8b8c77YahmLEKhrzo46kXelFNWhoo-OIfvHv'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/943720f2ea654780b0b4c8f22d962e40:3d59f456-e899-4b03-9712-23e5b712da67::'
-#token: '5IAfU0QdEY_1qO8eEti-d0z4JFCNVevwxmO3jQF2PjAs'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/b7d75c3c464e4fb7b17e36dcfddfe130:c3f849d1-bfa7-418a-b1ab-b4a7f402c0ed::'
-#token: 'DlI8UOM9VtRqC8N__nl7e27xo2PipEJMOdXVQUzVbtPu'
-
-#instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/ec97de239c4b40d485d1876746e5926e:f215320f-1b5a-433d-a003-45f632bcd437::'
-#token: 'vbbn4e1sMyjywFb8qZOnpEQWePvcXJtWAe2J1-DiwgYb'
-
-instance: 'crn:v1:bluemix:public:quantum-computing:us-east:a/0927c203ddf945d0bebe684c057cff69:50291da9-a053-4f37-866b-6d1cdb3d117d::'
-token: 'Z05fmO5SvYl6FxZKLKsqdUJ0yR-vcd_DVnaLDSWFPDJu'
+# IBM Quantum credentials are read from the environment, never from this file:
+#   export QISKIT_IBM_TOKEN='<your API key>'
+#   export QISKIT_IBM_INSTANCE='<your instance CRN>'
+# If unset, the account saved via QiskitRuntimeService.save_account() is used.

@@ -109,7 +109,7 @@ def interpret(result: Union[Dict, np.ndarray], n
         for p__ in range(n):
             p_step = []
             for i in range(n):
-                if x[i * n + p__]:
+                if x[p__ * n + i]:
                     p_step.append(i)
             if len(p_step) == 1:
                 route.extend(p_step)

@@ -1,10 +1,8 @@
-from os import mkdir
-from os.path import exists
+from os import makedirs
 
 import yaml
 import logging
 import sys
-import datetime
 import datetime
 from src.ProcessQaoa import process
 
@@ -13,9 +11,8 @@ config_file = "./config.yaml"
 with open(config_file, "r") as file:
     config = yaml.safe_load(file)
 
-output_dir = config.get('output_dir', '.saved_result')
-if not exists(output_dir):
-    mkdir(output_dir)
+output_dir = config.get('output_dir', './saved_result')
+makedirs(output_dir, exist_ok=True)
 
 num_cities_list = config['num_cities_list']
 use_simulator = config['use_simulator']
@@ -25,7 +22,8 @@ shots = config['shots']
 p_level = config['p_level']
 
 
-time_now = datetime.datetime.now()
+# No ':' in the timestamp so the log filename is valid on Windows
+time_now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 node_list_str = '_'.join([str(x) for x in num_cities_list])
 logging.basicConfig(
     level=logging.INFO,

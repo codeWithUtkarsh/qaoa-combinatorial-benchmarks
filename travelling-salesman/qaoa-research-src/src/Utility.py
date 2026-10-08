@@ -13,15 +13,15 @@ logger = logging.getLogger(__name__)
 config_file = "./config.yaml"
 with open(config_file, "r") as file:
     config = yaml.safe_load(file)
-output_dir = config.get('output_dir', '.saved_result')
+output_dir = config.get('output_dir', './saved_result')
 
 
 def estimate_quantum_circuit(backend, qc, num_vertices):
 
-    # backend = service.backend("ibm_brisbane")
+    # Ideal simulators carry no calibration data, so there are no gate durations to sum
     backend_properties = backend.properties()
     gate_durations = {}
-    for gate in backend_properties.gates:
+    for gate in (backend_properties.gates if backend_properties else []):
         name = gate.name
         name = ''.join(c for c in name if c.isalpha())
         qubits = tuple(gate.qubits)
@@ -29,9 +29,9 @@ def estimate_quantum_circuit(backend, qc, num_vertices):
         if duration:
             gate_durations[(name, qubits)] = duration
     estimated_time = 0
-    for instruction, qargs, _ in qc.data:
-        gate_name = instruction.name
-        qubit_indices = tuple(qc.qubits.index(q) for q in qargs)
+    for circuit_instruction in qc.data:
+        gate_name = circuit_instruction.operation.name
+        qubit_indices = tuple(qc.find_bit(q).index for q in circuit_instruction.qubits)
         # Try to match the exact gate-qubit pair
         key = (gate_name, qubit_indices)
         if key in gate_durations:
@@ -41,7 +41,7 @@ def estimate_quantum_circuit(backend, qc, num_vertices):
         "circuit_execution_estimated_time(ns)": estimated_time,
         "transpiled_circuit_depth": qc.depth(),
         "transpiled_gate_count": qc.size(),
-        "backend_in_use": backend,
+        "backend_in_use": backend.name,
     }
 
 def update_experiment_data(

@@ -1,0 +1,38 @@
+{
+  "experiment_data": {
+    "3": {
+      "classical_optimal_tour": "[0, 1, 2]",
+      "classical_optimal_distance": "15.76502977345707",
+      "gap": "0.0",
+      "circuit_execution_estimated_time(ns)": "0",
+      "transpiled_circuit_depth": "17",
+      "transpiled_gate_count": "63",
+      "backend_in_use": "aer_simulator",
+      "iterations": "36",
+      "optimization_time(sec)": "0.3331429958343506",
+      "p_level": "1",
+      "optimization_level": "3",
+      "optimizer": "COBYLA",
+      "quantum_possible_best_tours": "[[1, 2, 0]]",
+      "quantum_best_tour_found": "[1, 2, 0]",
+      "quantum_best_tour_distance": "15.76502977345707"
+    },
+    "4": {
+      "classical_optimal_tour": "[0, 2, 3, 1]",
+      "classical_optimal_distance": "17.924966288467054",
+      "gap": "0.0",
+      "circuit_execution_estimated_time(ns)": "0",
+      "transpiled_circuit_depth": "27",
+      "transpiled_gate_count": "144",
+      "backend_in_use": "aer_simulator",
+      "iterations": "35",
+      "optimization_time(sec)": "1.7777900695800781",
+      "p_level": "1",
+      "optimization_level": "3",
+      "optimizer": "COBYLA",
+      "quantum_possible_best_tours": "[[2, 0, 1, 3]]",
+      "quantum_best_tour_found": "[2, 0, 1, 3]",
+      "quantum_best_tour_distance": "17.924966288467054"
+    }
+  }
+}

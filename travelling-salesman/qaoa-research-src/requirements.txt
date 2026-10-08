@@ -1,11 +1,7 @@
-PyYAML
-numpy
-qiskit-optimization
-psutil
-matplotlib
+PyYAML==6.0.3
+numpy==2.4.6
+scipy==1.17.1
+matplotlib==3.11.2
 qiskit==2.0.3
-py-cpuinfo
-pandas
-qiskit-aer
-qiskit-algorithms
-qiskit-ibm-runtime
+qiskit-aer==0.17.2
+qiskit-ibm-runtime==0.45.1

@@ -35,7 +35,7 @@ class ImprovedTSPHamiltonian:
 
         # Create Z operator
         z_paulis = ['I'] * self.num_qubits
-        z_paulis[qubit_idx] = 'Z'
+        z_paulis[self.num_qubits - 1 - qubit_idx] = 'Z'
         z_coeffs = [-0.5]
 
         # Combine into SparsePauliOp
@@ -74,48 +74,31 @@ class ImprovedTSPHamiltonian:
             # Square the constraint: (1 - sum_i D(i, position))^2
             hamiltonian = hamiltonian + constraint_term @ constraint_term
 
-        # Constraint (c): Connectivity constraint (adjacent positions must be connected cities)
-        logger.debug("Adding constraint (c): Connectivity constraint")
-        for position in range(self.num_cities - 1):
-            connectivity_term = SparsePauliOp(['I' * self.num_qubits], [1.0])  # Start with I
+        # Adjacent positions wrap around (last -> first) so the tour is closed
+        adjacent_positions = [(p, (p + 1) % self.num_cities) for p in range(self.num_cities)]
 
+        logger.debug("Adding constraint (c): Connectivity constraint")
+        for position, next_position in adjacent_positions:
             for city1 in range(self.num_cities):
                 for city2 in range(self.num_cities):
-                    if self.connections[city1, city2] > 0:  # If cities are connected
+                    if city1 != city2 and self.connections[city1, city2] == 0:
                         d1_op = self.create_d_operator(city1, position)
-                        d2_op = self.create_d_operator(city2, position + 1)
-                        connectivity_term = connectivity_term - (d1_op @ d2_op)
+                        d2_op = self.create_d_operator(city2, next_position)
+                        hamiltonian = hamiltonian + d1_op @ d2_op
 
-            hamiltonian = hamiltonian + connectivity_term
-
-        # Constraint (d): Distance weighting
-        logger.debug("Adding constraint (d): Distance weighting")
-        for position in range(self.num_cities - 1):
-            distance_term = SparsePauliOp(['I' * self.num_qubits], [1.0])  # Start with I
-
+        # Term (d): Distance weighting - adds the length of every edge used, so shorter tours have lower energy
+        logger.debug("Adding term (d): Distance weighting")
+        for position, next_position in adjacent_positions:
             for city1 in range(self.num_cities):
                 for city2 in range(self.num_cities):
                     if self.connections[city1, city2] > 0:  # If cities are connected
                         distance = self.distances[city1, city2]
                         d1_op = self.create_d_operator(city1, position)
-                        d2_op = self.create_d_operator(city2, position + 1)
-                        distance_term = distance_term - (d1_op @ d2_op) * distance
+                        d2_op = self.create_d_operator(city2, next_position)
+                        hamiltonian = hamiltonian + (d1_op @ d2_op) * (distance * penalty_weight)
 
-            hamiltonian = hamiltonian + distance_term * penalty_weight
-
-        # Add return to start constraint
-        return_term = SparsePauliOp(['I' * self.num_qubits], [1.0])
-        for city1 in range(self.num_cities):
-            for city2 in range(self.num_cities):
-                if self.connections[city1, city2] > 0:
-                    distance = self.distances[city1, city2]
-                    d1_op = self.create_d_operator(city1, self.num_cities - 1)  # Last position
-                    d2_op = self.create_d_operator(city2, 0)  # First position
-                    return_term = return_term - (d1_op @ d2_op) * distance
-
-        hamiltonian = hamiltonian + return_term * penalty_weight
-
-        return hamiltonian
+        # Merge duplicate Pauli terms produced by the products above
+        return hamiltonian.simplify()
 
     def calculate_tour_distance(self, tour):
         """Calculate total distance for a given tour"""

@@ -2,203 +2,158 @@
 
 ## Overview
 
-This project implements a quantum-enhanced Traveling Salesman Problem (TSP) solver using the Quantum Approximate Optimization Algorithm (QAOA). The implementation leverages Qiskit's quantum computing framework to solve TSP instances and compare quantum vs classical optimization approaches.
+This project solves small Traveling Salesman Problem (TSP) instances with the Quantum Approximate Optimization Algorithm (QAOA) using Qiskit, and benchmarks the result against the exact classical (brute-force) optimum. It runs on a local simulator out of the box; an IBM Quantum account is only needed for noisy simulation or real hardware.
 
 ## Quick Start
 
-### 1. Clone and Setup
 ```bash
-# Clone the repository
-git clone https://github.com/codeWithUtkarsh/tsp-quantum-algorithm.git
-cd tsp-quantum-algorithm/CPU
+# 1. Clone and enter this directory
+git clone https://github.com/codeWithUtkarsh/qaoa-combinatorial-benchmarks.git
+cd qaoa-combinatorial-benchmarks/travelling-salesman/qaoa-research-src
 
-# Create and activate virtual environment (using Python 3.11.9)
-python3.11 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# 2. Create a virtual environment (Python 3.11+)
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-# Install dependencies
+# 3. Install dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
-```
 
-### 2. Configure (Optional)
-Edit `config.yaml` to customize your run:
-```yaml
-num_cities_list: [3, 4, 5]  # Adjust problem sizes
-optimizers: ['COBYLA']
-penalty_weight: 0.01
-use_simulator: true # Update to False to use the real quantum device
-shots: 1024
-max_iter: 100
-
-```
-
-### 3. Run
-```bash
+# 4. Run (default config: 3 cities on the ideal local simulator, no account needed)
 python main.py
 ```
 
+Alternatively, `./startup.sh` does steps 2–4 in one go (macOS/Linux).
+
+> Always run from this directory: `config.yaml` and `saved_result/` are resolved relative to the working directory.
+
+## Configuration
+
+All settings live in `config.yaml`:
+
+```yaml
+output_dir: './saved_result'
+
+# Problem
+num_cities_list: [3]     # one run per entry; n cities -> n^2 qubits
+penalty_weight: 0.01     # weight of the distance terms in the Hamiltonian
+
+# QAOA
+p_level: 1               # QAOA repetitions (reps)
+optimizer: 'COBYLA'      # any gradient-free scipy.optimize.minimize method
+max_iter: 100
+shots: 2000
+seed: null               # integer for reproducible runs, null for random
+
+# Backend
+use_simulator: true      # false -> run on real IBM Quantum hardware
+noisy_simulator: false   # simulator only: true -> copy the noise model of `backend_name` (needs IBM account)
+backend_name: 'ibm_brisbane'
+```
+
+### Backend modes
+
+| `use_simulator` | `noisy_simulator` | Backend | IBM account needed |
+|---|---|---|---|
+| `true` | `false` | Ideal `AerSimulator` | No |
+| `true` | `true` | `AerSimulator` with the noise model of `backend_name` | Yes |
+| `false` | — | Real device `backend_name` | Yes (consumes your quantum time) |
+
+### IBM Quantum credentials
+
+Credentials are **never** stored in `config.yaml`. Provide them through environment variables:
+
+```bash
+export QISKIT_IBM_TOKEN='<your API key>'
+export QISKIT_IBM_INSTANCE='<your instance CRN>'
+```
+
+If these are not set, the account previously saved with `QiskitRuntimeService.save_account(...)` is used. Make sure `backend_name` is a device your instance has access to.
+
+### Problem size
+
+Each city count `n` needs `n²` qubits, so simulation cost grows quickly: 3 cities (9 qubits) runs in seconds, 5 cities (25 qubits) can take a long time on a laptop. The classical brute-force comparison runs for `n < 6`.
+
+## Output
+
+Results go to `output_dir` (default `./saved_result/`):
+
+- `experiment_data.json` — metrics per city count. New runs are **merged** into the existing file and overwrite entries for the same city count.
+- `app_<cities>_<timestamp>.log` — full run log.
+
+Recorded metrics:
+
+| Key | Description |
+|---|---|
+| `classical_optimal_tour`, `classical_optimal_distance` | Exact optimum (brute force, `n < 6`) |
+| `quantum_best_tour_found`, `quantum_best_tour_distance` | Best tour decoded from the most likely bitstring. If that bitstring violates the constraints, the decoder repairs it (fills empty positions with unused cities), so the tour may not have been measured directly |
+| `quantum_possible_best_tours` | All tours decoded from that bitstring |
+| `gap` | % gap between quantum and classical tour distance (`n < 6`) |
+| `transpiled_circuit_depth`, `transpiled_gate_count` | Size of the transpiled circuit |
+| `circuit_execution_estimated_time(ns)` | Sum of calibrated gate durations (0 on the ideal simulator, which has no calibration data) |
+| `iterations`, `optimization_time(sec)` | Cost-function evaluations and wall time of the classical optimizer |
+| `p_level`, `optimizer`, `optimization_level`, `backend_in_use` | Settings actually used for the run |
+| `real_execution_time` | Hardware execution time of the final sampling job (real hardware only) |
+
 ## Algorithm Description
 
-### QAOA-based TSP Algorithm
+### 1. Problem formulation (`src/ImprovedTSPHamiltonian.py`)
+- **Distance matrix:** random symmetric matrix, values in [0, 10), generated with fixed seed `123` so the instance for a given `n` is always the same.
+- **Encoding:** `n²` qubits, one per (city, position) pair; qubit index = `position * n + city` (Qiskit little-endian, so qubit 0 is the rightmost bit of a measured bitstring).
+- **D operator:** `D(city, position) = 0.5 * (I - Z)`, the projector onto "city is at position".
 
-The core algorithm implements a quantum approach to solving the TSP using an improved Hamiltonian formulation:
+### 2. Hamiltonian
 
-#### 1. TSP Problem Formulation
-- **Distance Matrix Generation**: Creates random symmetric distance matrices with seeded random generation
-- **Qubit Encoding**: Uses n² qubits for n cities (one qubit per city-position pair)
-- **Hamiltonian Construction**: Builds TSP Hamiltonian with multiple constraint terms
+Standard TSP QUBO (Lucas, *Ising formulations of many NP problems*, 2014), with positions taken cyclically so the tour returns to its start:
 
-#### 2. Improved TSP Hamiltonian Components
-
-The algorithm uses four main constraint terms:
-
-```python
-# Hamiltonian Structure:
+```
 H = H_a + H_b + H_c + penalty_weight * H_d
 
-Where:
-- H_a: Each city visited exactly once
-- H_b: Each position has exactly one city  
-- H_c: Connectivity constraint (adjacent positions must be connected)
-- H_d: Distance weighting (minimize total tour distance)
+H_a : each city appears in exactly one position     Σ_city (1 - Σ_pos D(city, pos))²
+H_b : each position holds exactly one city          Σ_pos  (1 - Σ_city D(city, pos))²
+H_c : penalty for unconnected cities in adjacent    Σ_pos Σ_(u,v) not connected  D(u, pos) D(v, pos+1)
+      positions (zero for the complete graphs used here)
+H_d : tour length                                   Σ_pos Σ_(u,v) d(u,v) D(u, pos) D(v, pos+1)
 ```
 
-**D Operator Definition:**
-- D(city, position) = 0.5 * (I - Z)
-- Maps qubit states to city assignments
+The ground state of `H` is the optimal tour as long as `penalty_weight * max(d)` is below 1 (the constraint weight). With distances in [0, 10) the default `penalty_weight: 0.01` satisfies this.
 
-#### 3. Quantum Optimization Pipeline
+### 3. QAOA pipeline (`src/ProcessQaoa.py`)
 
-```python
-# Algorithm Flow:
-1. TSP Instance Creation
-   └── ImprovedTSPHamiltonian(num_cities, seed=123)
-
-2. Hamiltonian Construction
-   └── tsp.create_hamiltonian(penalty_weight=0.01)
-
-3. QAOA Circuit Creation
-   └── QAOAAnsatz(cost_operator=hamiltonian, reps=p_level)
-   └── p_level = ceil(log2(num_cities²))
-
-4. Circuit Transpilation
-   └── generate_preset_pass_manager(backend, optimization_level=2)
-
-5. Quantum Optimization
-   └── EstimatorV2 with COBYLA optimizer
-
-6. Result Sampling
-   └── SamplerV2 to get final bitstring distribution
+```
+1. ImprovedTSPHamiltonian(num_cities, seed=123)
+2. tsp.create_hamiltonian(penalty_weight)
+3. QAOAAnsatz(cost_operator=H, reps=p_level)
+4. generate_preset_pass_manager(backend, optimization_level=3, seed_transpiler=42)
+5. scipy.optimize.minimize(<EstimatorV2 expectation value>, method=optimizer, maxiter=max_iter)
+     initial parameters ~ Uniform[-π/8, π/8]
+6. SamplerV2 on the optimised circuit -> bitstring distribution
+7. Most likely bitstring -> city/position matrix -> valid tours -> shortest tour
 ```
 
-#### 4. QAOA Configuration
+## Project Structure
 
-**Quantum Components:**
-- **Backend**: IBM Quantum Runtime or Aer Simulator
-- **Shots**: 1000 (default, configurable)
-- **Transpiler**: Optimization level 2 with seed 42
-
-**Classical Optimizer:**
-- **Algorithm**: COBYLA (Constrained Optimization BY Linear Approximation)
-- **Max Iterations**: 100 (default, configurable)
-- **Initial Parameters**: Random uniform in [-π/8, π/8]
-
-**QAOA Parameters:**
-- **Repetitions (p)**: Dynamically calculated as ceil(log2(n²))
-- **Ansatz**: QAOAAnsatz with problem-specific cost Hamiltonian
-
-#### 4. Performance Metrics Tracking
-
-The algorithm tracks comprehensive performance metrics:
-
-```python
-Metrics Collected:
-├── optimization_time        # Total optimization time
-├── iterations              # Number of function evaluations
-├── quantum_width           # Circuit width
-├── quantum_depth           # Circuit depth  
-├── quantum_size            # Total gate count
-└── gap                     # Percentage gap from classical optimal (if computed)
+```
+qaoa-research-src/
+├── main.py                       # entry point: reads config, loops over num_cities_list
+├── config.yaml                   # run settings (no secrets)
+├── startup.sh                    # venv + install + run helper
+├── requirements.txt              # pinned dependencies
+├── src/
+│   ├── ProcessQaoa.py            # backend selection, QAOA loop, classical comparison
+│   ├── ImprovedTSPHamiltonian.py # Hamiltonian used by the pipeline
+│   ├── TSPHamiltonian.py         # earlier Hamiltonian formulation (not used by main.py)
+│   ├── SampleProcessing.py       # most-likely bitstring, bitstring -> matrix
+│   ├── DecodeBitstringTSP.py     # matrix -> tour sequences
+│   ├── Utility.py                # circuit metrics, experiment_data.json I/O
+│   └── Visualization.py          # plotting helpers
+├── documents/                    # algorithm write-ups
+└── saved_result/                 # results and logs from previous runs
 ```
 
-#### 5. Solution Processing
-
-**Result Analysis:**
-- Extracts most probable bitstring from measurement distribution
-- Interprets bitstring as city-position matrix
-- Generates valid tour sequences from matrix
-- Calculates tour distances and selects optimal
-
-**Classical Comparison:**
-- For small instances (n < 6), computes exact solution via brute force
-- Calculates optimality gap for benchmarking
-
-## Installation and Setup
-
-### Prerequisites
-
-- Python 3.11.9 (required)
-- pip package manager
-
-### Detailed Installation Steps
-
-#### 1. Clone the Repository
+## Verify Installation
 
 ```bash
-git clone https://github.com/codeWithUtkarsh/tsp-quantum-algorithm.git
-cd tsp-quantum-algorithm
-```
-
-#### 2. Navigate to CPU Directory
-
-```bash
-cd CPU
-```
-
-#### 3. Create Virtual Environment (Highly Recommended)
-
-```bash
-# Create virtual environment (ensure Python 3.11.9 is installed)
-python3.11 -m venv venv
-
-# Activate virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-
-# On Windows:
-venv\Scripts\activate
-
-# On Windows PowerShell:
-venv\Scripts\Activate.ps1
-```
-
-#### 4. Install Dependencies
-
-```bash
-# Upgrade pip first
-pip install --upgrade pip
-
-# Install required packages
-pip install -r requirements.txt
-```
-
-**Key Dependencies:**
-- `PyYAML` - YAML file parsing and configuration management
-- `numpy` - Numerical computations and array operations
-- `qiskit-optimization` - Quantum optimization algorithms (QAOA, VQE)
-- `psutil` - System monitoring and process utilities
-- `matplotlib` - Data visualization and plotting
-- `qiskit==2.0.3` - Core quantum computing framework
-- `py-cpuinfo` - CPU information and hardware profiling
-- `pandas` - Data manipulation and analysis
-- `qiskit-aer` - High-performance quantum circuit simulator
-- `qiskit-algorithms` - Quantum algorithms library
-- `qiskit-ibm-runtime` - IBM Quantum cloud services integration
-
-#### 5. Verify Installation
-
-```bash
-# Test if installation is successful
-python3 --version  # Should show Python 3.11.9
-python3 -c "import qiskit; print(f'Qiskit version: {qiskit.__version__}')"
+python --version   # 3.11 or newer
+python -c "import qiskit, qiskit_aer; print('Qiskit', qiskit.__version__, '| Aer', qiskit_aer.__version__)"
 ```
